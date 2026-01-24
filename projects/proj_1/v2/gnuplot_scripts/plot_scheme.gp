@@ -23,7 +23,7 @@ set key outside right center
 set xrange [0:1]
 set yrange [100:300]
 
-fname = sprintf("%s_%s.txt", scheme, tag)
+fname = sprintf("data/%s_%s.txt", scheme, tag)
 
 plot \
   fname index 1 using 1:2 with linespoints lw 2 pt 7  ps 1.0 title "t = 0.1 hr", \

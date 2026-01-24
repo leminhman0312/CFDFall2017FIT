@@ -2,7 +2,7 @@
 # gnuplot -e "scheme='ftcs_implicit'; tag1='001'; dt1='0.01'; tag2='005'; dt2='0.05'; idx=1; tlabel='0.1'" compare_dt.gp
 
 set terminal pngcairo size 1000,700 enhanced font "Arial,18"
-set output sprintf("compare_dt_%s_t%s.png", scheme, tlabel)
+set output sprintf("compare/compare_dt_%s_t%s.png", scheme, tlabel)
 
 set datafile separator "\t"
 set datafile commentschars "#"
@@ -23,8 +23,8 @@ set key outside right center
 set xrange [0:1]
 set yrange [100:300]
 
-f1 = sprintf("%s_%s.txt", scheme, tag1)
-f2 = sprintf("%s_%s.txt", scheme, tag2)
+f1 = sprintf("data/%s_%s.txt", scheme, tag1)
+f2 = sprintf("data/%s_%s.txt", scheme, tag2)
 
 plot \
   f1 index idx using 1:2 with linespoints lw 2 pt 7  ps 1.0 title sprintf("dt = %s hr", dt1), \

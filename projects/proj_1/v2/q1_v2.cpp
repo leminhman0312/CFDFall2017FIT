@@ -8,7 +8,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <cstdlib>
-
+#include <sys/stat.h>
+#include <sys/types.h>
 //Functions' Prototypes
 
 //Calculations
@@ -27,9 +28,24 @@ void CrankNicolson_implicit(int nmax, double dx, double tboundary, double t0, in
 //Simulations
 void sim(double delta_x,double delta_t, int imax, double t0, double tboundary, double diffusion);
 void plot(double delta_t);
-static void make_dt_tag(double dt, char tag[8]);
 void compare_schemes(double delta_t, double t_target);
 void compare_dt(const char* scheme, double dt1, double dt2, double t_target);
+void compare_dt_all_times(const char* scheme, double dt1, double dt2);
+
+// helpers
+static void make_dt_tag(double dt, char tag[8]);
+static void ensure_compare_dir();
+static void ensure_plot_dir();
+static void ensure_data_dir();
+static bool file_exists(const char* path);
+static bool scheme_data_exists(const char* scheme, double dt);
+
+
+
+
+
+
+
 
 
 
@@ -69,28 +85,84 @@ int main(){
 	//plotting
 	plot(delta_t);
 	compare_schemes(0.01,0.1);
-	compare_dt("ftcs_implicit", 0.01, 0.05, 0.1);
+
+	compare_dt_all_times("ftcs_explicit", 0.01, 0.05);
+	compare_dt_all_times("dufort",        0.01, 0.05);
+	compare_dt_all_times("ftcs_implicit", 0.01, 0.05);
+	compare_dt_all_times("cn",            0.01, 0.05);
+
 
 	
 	return 0;
 
 }
 
+
+static bool scheme_data_exists(const char* scheme, double dt)
+{
+    char tag[8];
+    make_dt_tag(dt, tag);
+
+    char fname[128];
+    std::snprintf(fname, sizeof(fname), "data/%s_%s.txt", scheme, tag);
+    return file_exists(fname);
+}
+
+
+
+static bool file_exists(const char* path)
+{
+    struct stat st;
+    return (stat(path, &st) == 0);
+}
+
+
+static void ensure_plot_dir()
+{
+    struct stat st;
+    if (stat("plot", &st) != 0) {
+        mkdir("plot", 0755);
+    }
+}
+
+static void ensure_compare_dir()
+{
+    struct stat st;
+    if (stat("compare", &st) != 0) {
+        mkdir("compare", 0755);
+    }
+}
+
 void compare_dt(const char* scheme, double dt1, double dt2, double t_target)
 {
+    ensure_compare_dir();
+
+    if (!scheme_data_exists(scheme, dt1) || !scheme_data_exists(scheme, dt2)) {
+        return; // do nothing if either dataset missing
+    }
+
     char tag1[8], tag2[8];
     make_dt_tag(dt1, tag1);
     make_dt_tag(dt2, tag2);
 
-    // your blocks are: t=0.0 is index 0, t=0.1 is index 1, etc
     int idx = (int)lround(t_target / 0.1);
 
     char cmd[512];
     std::snprintf(cmd, sizeof(cmd),
-        "gnuplot -e \"scheme='%s'; tag1='%s'; dt1='%.2f'; tag2='%s'; dt2='%.2f'; idx=%d; tlabel='%.1f'\" compare_dt.gp",
+        "gnuplot -e \"scheme='%s'; tag1='%s'; dt1='%.2f'; tag2='%s'; dt2='%.2f'; idx=%d; tlabel='%.1f'\" gnuplot_scripts/compare_dt.gp",
         scheme, tag1, dt1, tag2, dt2, idx, t_target);
 
     system(cmd);
+}
+
+
+void compare_dt_all_times(const char* scheme, double dt1, double dt2)
+{
+    double times[4] = {0.1, 0.2, 0.3, 0.4};
+
+    for (int k = 0; k < 4; k++){
+        compare_dt(scheme, dt1, dt2, times[k]);
+    }
 }
 
 
@@ -105,15 +177,16 @@ static void make_dt_tag(double dt, char tag[8])
 
 void sim(double delta_x, double delta_t, int imax,
          double t0, double tboundary, double diffusion)
-{
+{    
+	ensure_data_dir();
     char tag[8];
     make_dt_tag(delta_t, tag);
 
     char f_explicit[64], f_dufort[64], f_implicit[64], f_cn[64];
-    std::snprintf(f_explicit, 64, "ftcs_explicit_%s.txt", tag);
-    std::snprintf(f_dufort,   64, "dufort_%s.txt",        tag);
-    std::snprintf(f_implicit, 64, "ftcs_implicit_%s.txt", tag);
-    std::snprintf(f_cn,       64, "cn_%s.txt",            tag);
+    std::snprintf(f_explicit, 64, "data/ftcs_explicit_%s.txt", tag);
+    std::snprintf(f_dufort,   64, "data/dufort_%s.txt",        tag);
+    std::snprintf(f_implicit, 64, "data/ftcs_implicit_%s.txt", tag);
+    std::snprintf(f_cn,       64, "data/cn_%s.txt",            tag);
 
     FILE* outfile_explicit = fopen(f_explicit, "w");
     FILE* outfile_dufort   = fopen(f_dufort,   "w");
@@ -166,6 +239,7 @@ void sim(double delta_x, double delta_t, int imax,
 
 void compare_schemes(double delta_t, double t_target)
 {
+	ensure_compare_dir();
     char tag[8];
     make_dt_tag(delta_t, tag);
 
@@ -174,7 +248,7 @@ void compare_schemes(double delta_t, double t_target)
 
     char cmd[256];
     std::snprintf(cmd, 256,
-        "gnuplot -e \"tag='%s'; dt='%.2f'; idx=%d; tlabel='%.1f'\" compare_schemes.gp",
+        "gnuplot -e \"tag='%s'; dt='%.2f'; idx=%d; tlabel='%.1f'\" gnuplot_scripts/compare_schemes.gp",
         tag, delta_t, idx, t_target);
     system(cmd);
 }
@@ -182,30 +256,40 @@ void compare_schemes(double delta_t, double t_target)
 
 void plot(double delta_t)
 {
+	ensure_plot_dir();
     char tag[8];
     make_dt_tag(delta_t, tag);
 
     char cmd[256];
 
     std::snprintf(cmd, 256,
-        "gnuplot -e \"scheme='ftcs_explicit'; tag='%s'; dt='%.2f'; outpng='ftcs_explicit_%s.png'\" plot_scheme.gp",
+        "gnuplot -e \"scheme='ftcs_explicit'; tag='%s'; dt='%.2f'; outpng='plot/ftcs_explicit_%s.png'\" gnuplot_scripts/plot_scheme.gp",
         tag, delta_t, tag);
     system(cmd);
 
     std::snprintf(cmd, 256,
-        "gnuplot -e \"scheme='dufort'; tag='%s'; dt='%.2f'; outpng='dufort_%s.png'\" plot_scheme.gp",
+        "gnuplot -e \"scheme='dufort'; tag='%s'; dt='%.2f'; outpng='plot/dufort_%s.png'\" gnuplot_scripts/plot_scheme.gp",
         tag, delta_t, tag);
     system(cmd);
 
     std::snprintf(cmd, 256,
-        "gnuplot -e \"scheme='ftcs_implicit'; tag='%s'; dt='%.2f'; outpng='ftcs_implicit_%s.png'\" plot_scheme.gp",
+        "gnuplot -e \"scheme='ftcs_implicit'; tag='%s'; dt='%.2f'; outpng='plot/ftcs_implicit_%s.png'\" gnuplot_scripts/plot_scheme.gp",
         tag, delta_t, tag);
     system(cmd);
 
     std::snprintf(cmd, 256,
-        "gnuplot -e \"scheme='cn'; tag='%s'; dt='%.2f'; outpng='cn_%s.png'\" plot_scheme.gp",
+        "gnuplot -e \"scheme='cn'; tag='%s'; dt='%.2f'; outpng='plot/cn_%s.png'\" gnuplot_scripts/plot_scheme.gp",
         tag, delta_t, tag);
     system(cmd);
+}
+
+
+static void ensure_data_dir()
+{
+    struct stat st;
+    if (stat("data", &st) != 0) {
+        mkdir("data", 0755);
+    }
 }
 
 
@@ -332,7 +416,7 @@ void FTCS_return_implicit_interior(int nmax, double diffusion, double tboundary,
 	//initialize full field at t = 0
 	u_full[1] = tboundary;
 	u_full[imax] = tboundary;
-	for (int i = 2; i <= imax-2; i++) {
+	for (int i = 2; i <= imax-1; i++) {
 		u_full[i] = t0;
 	}
 
