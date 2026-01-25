@@ -24,5 +24,8 @@ void thomasTriDiagonal(int imax, double a[], double b[], double c[], double d[],
 void FTCS_return_implicit_interior(int nmax, double F_num, double tboundary, double t0,
                                    int imax, double u_full[]);
 
+void exact_solution_profile(int imax,const double x[],double t,double alpha,double L,double tboundary,double t0,int nterms,double out_T[]);
+
+
 
 #endif

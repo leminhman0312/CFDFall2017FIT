@@ -1,6 +1,10 @@
 #include "helpers.h"
 #include <cstdio>
 #include <cmath>
+#include <fstream>
+#include <string>
+#include <cstdlib>
+#include <cstring>
 
 void ensure_plot_dir()
 {
@@ -40,4 +44,53 @@ bool scheme_data_exists(const char* scheme, double dt)
     char fname[128];
     std::snprintf(fname, sizeof(fname), "data/%s_%s.txt", scheme, tag);
     return file_exists(fname);
+}
+
+int last_block_index_and_time(const char* path, double* last_time_out)
+{
+    std::ifstream in(path);
+    if (!in) {
+        if (last_time_out) *last_time_out = 0.0;
+        return 0;
+    }
+
+    std::string line;
+    int idx = -1;
+    double last_t = 0.0;
+
+    while (std::getline(in, line)) {
+        if (line.rfind("# t =", 0) == 0) {
+            idx += 1;
+            const char* s = line.c_str();
+            const char* eq = std::strchr(s, '=');
+            if (eq) {
+                last_t = std::atof(eq + 1);
+            }
+        }
+    }
+
+    if (idx < 0) idx = 0;
+    if (last_time_out) *last_time_out = last_t;
+    return idx;
+}
+
+double latest_time_in_file(const char* path)
+{
+    FILE* f = std::fopen(path, "r");
+    if (!f) return 0.0;
+
+    char line[256];
+    double last_t = 0.0;
+
+    while (std::fgets(line, sizeof(line), f)) {
+        if (std::strncmp(line, "# t =", 5) == 0) {
+            double t = 0.0;
+            if (std::sscanf(line, "# t = %lf", &t) == 1) {
+                last_t = t;
+            }
+        }
+    }
+
+    std::fclose(f);
+    return last_t;
 }

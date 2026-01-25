@@ -200,3 +200,26 @@ void thomasTriDiagonal(int imax, double a[], double b[], double c[], double d[],
         u[i] = (cprime[i] - a[i]*u[i+1]) / dprime[i];
     }
 }
+
+
+void exact_solution_profile(int imax,const double x[],double t,double alpha,double L,double tboundary,double t0,int nterms,double out_T[]){
+    const double pi = 4.00*atan(1.0);//3.14159265358979323846;
+    const double A = (t0 - tboundary);
+
+    for (int i = 1; i <= imax; i++){
+        double sum = 0.0;
+
+        for (int n = 1; n <= nterms; n++){
+            double coeff = (2.0 * A / (n * pi)) * (1.0 - std::pow(-1.0, n)); 
+            if (coeff == 0.0) continue;
+
+            double k = n * pi / L;
+            sum += coeff * std::sin(k * x[i]) * std::exp(-alpha * k * k * t);
+        }
+
+        out_T[i] = tboundary + sum;
+    }
+
+    out_T[1] = tboundary;
+    out_T[imax] = tboundary;
+}
