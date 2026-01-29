@@ -44,7 +44,8 @@ void write_field_xyz(const char* filename,
 void plotContour2D(const char* infile, const char* outpng, double xmax,
                    double ymax, const char* tlabel);
 
-void plotContourMatlabLike(const char* datafile, const char* outpng);
+void plotContourMatlabLike(const char* datafile, const char* outpng,
+                           double time_hr, const char* scheme);
 
 void ensure_dir(const char* name);
 
@@ -60,7 +61,7 @@ int main() {
 
   // time controls
   const double dt = 0.01;    // hr
-  const double hours = 0.5;  // hr
+  const double hours = 1.0;  // hr
   const int nmax = (int)std::lround(hours / dt);
 
   // grid
@@ -101,13 +102,16 @@ int main() {
 
   // post processing
   write_field_xyz("data/initial.dat", u0, deltax, deltay);
-  plotContourMatlabLike("data/initial.dat", "data/contour_initial.png");
+  plotContourMatlabLike("data/initial.dat", "plot/contour_initial.png", hours,
+                        "Initial conditions");
 
   write_field_xyz("data/implicit.dat", u_implicit, deltax, deltay);
-  plotContourMatlabLike("data/implicit.dat", "data/contour_implicit.png");
+  plotContourMatlabLike("data/implicit.dat", "plot/contour_implicit.png", hours,
+                        "FTCS implicit");
 
   write_field_xyz("data/explicit.dat", u_explicit, deltax, deltay);
-  plotContourMatlabLike("data/explicit.dat", "data/contour_explicit.png");
+  plotContourMatlabLike("data/explicit.dat", "plot/contour_explicit.png", hours,
+                        "FTCS Explicit");
   return 0;
 }
 
@@ -156,12 +160,12 @@ std::vector<std::vector<double>> FTCS_Explicit(
 
     // enforce BCs
     for (int j = 1; j <= jmax; j++) {
-      u_new[1][j] = t3;
-      u_new[imax][j] = t1;
+      u_new[1][j] = t2;
+      u_new[imax][j] = t4;
     }
     for (int i = 1; i <= imax; i++) {
-      u_new[i][1] = t2;
-      u_new[i][jmax] = t4;
+      u_new[i][1] = t1;
+      u_new[i][jmax] = t3;
     }
 
     u.swap(u_new);
@@ -187,12 +191,6 @@ std::vector<std::vector<double>> initializeField(int imax, int jmax, double t0,
     u[i][1] = t1;     // bottom
     u[i][jmax] = t3;  // top
   }
-
-  // // optional: explicit corner rule (average the two touching sides)
-  // u[1][1] = 0.5 * (t2 + t3);        // top-left
-  // u[1][jmax] = 0.5 * (t4 + t3);     // top-right
-  // u[imax][1] = 0.5 * (t2 + t1);     // bottom-left
-  // u[imax][jmax] = 0.5 * (t4 + t1);  // bottom-right
 
   return u;
 }
@@ -260,12 +258,12 @@ std::vector<std::vector<double>> FTCS_implicit(
   for (int n = 1; n <= nmax; n++) {
     // enforce BCs on u at start of step (good habit)
     for (int j = 1; j <= jmax; j++) {
-      u[1][j] = t3;     // top
-      u[imax][j] = t1;  // bottom
+      u[1][j] = t2;     // top
+      u[imax][j] = t4;  // bottom
     }
     for (int i = 1; i <= imax; i++) {
-      u[i][1] = t2;     // left
-      u[i][jmax] = t4;  // right
+      u[i][1] = t1;     // left
+      u[i][jmax] = t3;  // right
     }
 
     // -------------------------
@@ -306,12 +304,12 @@ std::vector<std::vector<double>> FTCS_implicit(
 
     // enforce BCs on u_dummy too
     for (int j = 1; j <= jmax; j++) {
-      u_dummy[1][j] = t3;
-      u_dummy[imax][j] = t1;
+      u_dummy[1][j] = t2;
+      u_dummy[imax][j] = t4;
     }
     for (int i = 1; i <= imax; i++) {
-      u_dummy[i][1] = t2;
-      u_dummy[i][jmax] = t4;
+      u_dummy[i][1] = t1;
+      u_dummy[i][jmax] = t3;
     }
 
     // -------------------------
@@ -344,12 +342,12 @@ std::vector<std::vector<double>> FTCS_implicit(
 
     // enforce final BCs on u
     for (int j = 1; j <= jmax; j++) {
-      u[1][j] = t3;
-      u[imax][j] = t1;
+      u[1][j] = t2;
+      u[imax][j] = t4;
     }
     for (int i = 1; i <= imax; i++) {
-      u[i][1] = t2;
-      u[i][jmax] = t4;
+      u[i][1] = t1;
+      u[i][jmax] = t3;
     }
   }
   return u;
@@ -410,12 +408,17 @@ void plotContour2D(const char* infile, const char* outpng, double xmax,
   system(cmd);
 }
 
-void plotContourMatlabLike(const char* datafile, const char* outpng) {
+void plotContourMatlabLike(const char* datafile, const char* outpng,
+                           double time_hr, const char* scheme) {
   char cmd[1024];
   std::snprintf(cmd, sizeof(cmd),
-                "gnuplot -e \"datafile=\\\"%s\\\"; outpng=\\\"%s\\\"\" "
+                "gnuplot -e \""
+                "datafile=\\\"%s\\\"; "
+                "outpng=\\\"%s\\\"; "
+                "tlabel=%.3f; "
+                "scheme=\\\"%s\\\"\" "
                 "gnuplot_scripts/plot_contour_2d_matlab_like.gp",
-                datafile, outpng);
+                datafile, outpng, time_hr, scheme);
   printf("GNUPLOT CMD:\n%s\n", cmd);
   system(cmd);
 }
