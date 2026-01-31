@@ -1,12 +1,5 @@
 #include "helpers.h"
 
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <fstream>
-#include <string>
-
 void ensure_plot_dir() {
   struct stat st;
   if (stat("plot", &st) != 0) mkdir("plot", 0755);

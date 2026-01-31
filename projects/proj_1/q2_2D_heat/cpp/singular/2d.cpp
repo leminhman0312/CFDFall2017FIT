@@ -419,7 +419,9 @@ void plotContourMatlabLike(const char* datafile, const char* outpng,
                 "scheme=\\\"%s\\\"\" "
                 "gnuplot_scripts/plot_contour_2d_matlab_like.gp",
                 datafile, outpng, time_hr, scheme);
-  printf("GNUPLOT CMD:\n%s\n", cmd);
+
+  printf("PLOTTING:\n%s\n", scheme);
+  printf("DONE\n\n");
   system(cmd);
 }
 

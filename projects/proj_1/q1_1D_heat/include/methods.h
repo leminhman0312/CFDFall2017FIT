@@ -1,8 +1,7 @@
 #ifndef METHODS_H
 #define METHODS_H
 
-#include <cmath>
-#include <cstdio>
+#include "headers.h"
 
 // prototypes
 

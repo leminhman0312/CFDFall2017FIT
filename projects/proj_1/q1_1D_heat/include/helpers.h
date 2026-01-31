@@ -1,8 +1,7 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
-#include <sys/stat.h>
-#include <sys/types.h>
+#include "headers.h"
 
 void ensure_plot_dir();
 void ensure_compare_dir();

@@ -1,7 +1,5 @@
 #include "methods.h"
 
-#include <cmath>
-
 // FTCS explicit
 
 void FTCS_explicit(int nmax, double F_num, double tboundary, double t0,

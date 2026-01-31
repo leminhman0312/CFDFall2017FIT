@@ -234,7 +234,7 @@ void compare_error_schemes(double delta_t, double t_target) {
   char cmd[512];
   std::snprintf(cmd, sizeof(cmd),
                 "gnuplot -e \"tag='%s'; dt=%.2f; idx=%d; tlabel='%.1f'; "
-                "outpng='compare/error_schemes_%s_t%.1f.png'\" "
+                "outpng='plot/error_schemes_%s_t%.1f.png'\" "
                 "gnuplot_scripts/compare_error_schemes.gp",
                 tag, delta_t, idx, t_target, tag, t_target);
   system(cmd);

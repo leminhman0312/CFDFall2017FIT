@@ -47,10 +47,10 @@ int main() {
 
   // simulation
   auto u_explicit = FTCS_Explicit(u0, nmax, deltax, deltay, dt_explicit, alpha,
-                                  t0, t1, t2, t3, t4);
+                                  t1, t2, t3, t4);
 
   auto u_implicit =
-      FTCS_implicit(u0, nmax, deltax, deltay, dt, alpha, t0, t1, t2, t3, t4);
+      FTCS_implicit(u0, nmax, deltax, deltay, dt, alpha, t1, t2, t3, t4);
 
   // post processing
   write_field_xyz("data/initial.dat", u0, deltax, deltay);

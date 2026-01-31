@@ -1,4 +1,3 @@
-#include <cmath>
 
 #include "driver.h"
 
@@ -16,12 +15,15 @@ int main() {
   sim(delta_x, delta_t, imax, t0, tboundary,
       Fourier_num);  // run the simulation
 
-  compare_schemes(delta_t);
+  printf("Plotting all schemes at 1 dt\n\n");
+  plot(delta_t);
 
+  printf("Comparing different schemes\n\n");
   compare_error_schemes(delta_t, 0.4);
 
   // For error norm analysis
   double dt_list[] = {0.10, 0.05, 0.02, 0.01, 0.005};
+  printf("Convergence study\n\n");
   convergence_study(delta_x, imax, alpha, t0, tboundary, 0.4, dt_list, 5);
 
   return 0;

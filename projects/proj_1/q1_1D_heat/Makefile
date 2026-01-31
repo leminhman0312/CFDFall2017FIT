@@ -1,24 +1,24 @@
 CXX := g++
-CXXFLAGS := -O2 -std=c++17 -Wall -Wextra
+CXXFLAGS := -O2 -std=c++17 -Wall -Wextra -Iinclude
 
 TARGET := 1D_heat
 
-SRC := main.cpp helpers.cpp methods.cpp driver.cpp
-OBJ := $(SRC:.cpp=.o)
+SRC := $(wildcard src/*.cpp)
+OBJ := $(patsubst src/%.cpp, build/%.o, $(SRC))
 
 all: $(TARGET)
 
 $(TARGET): $(OBJ)
-	$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET)
+	$(CXX) $(CXXFLAGS) $(OBJ) -o $@
 
-%.o: %.cpp
+build/%.o: src/%.cpp | build
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+build:
+	mkdir -p build
+
 clean:
-	rm -f $(OBJ) $(TARGET)
-
-cleanall: clean
-	rm -rf plot compare 
-
+	rm -f $(TARGET) build/*.o data/*.txt data/*.dat plot/*.png
+	
 run: $(TARGET)
 	./$(TARGET)

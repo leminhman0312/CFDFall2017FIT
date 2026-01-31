@@ -4,8 +4,8 @@
 
 std::vector<std::vector<double>> FTCS_Explicit(
     const std::vector<std::vector<double>>& u0, int nmax, double deltax,
-    double deltay, double dt, double alpha, double t0, double t1, double t2,
-    double t3, double t4) {
+    double deltay, double dt, double alpha, double t1, double t2, double t3,
+    double t4) {
   // create u and pass u0 from init
   std::vector<std::vector<double>> u = u0;
 
