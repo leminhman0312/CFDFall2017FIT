@@ -1,0 +1,536 @@
+\documentclass[12pt]{article}
+
+% ---------- Page layout ----------
+\usepackage[a4paper,
+            left=1.4cm,
+            right=1.4cm,
+            top=1.4cm,
+            bottom=1.4cm]{geometry}
+\linespread{1.1}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+% ---------- Vietnamese UTF-8 ----------
+\usepackage[utf8]{vietnam}
+
+% ---------- Colors (load ONCE) ----------
+\usepackage[table]{xcolor}
+\definecolor{titleblue}{RGB}{0,0,120}
+\definecolor{sectionred}{RGB}{160,0,0}
+
+% ---------- Math / graphics ----------
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikz}
+
+% ---------- Better layout polish ----------
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{titlesec}
+
+% ---------- Tables ----------
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{arydshln}
+
+% ---------- Compact lists ----------
+\usepackage{enumitem}
+\setlist[itemize]{nosep,leftmargin=1.3em}
+\setlist[itemize]{topsep=2pt,itemsep=1pt}
+
+% ---------- Header: Trang X trên Y (top center, no line) ----------
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{Trang \thepage\ trên \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% ---------- Section formatting ----------
+\titleformat{\section}
+  {\Large\bfseries\color{sectionred}}
+  {}{0pt}{}
+\titlespacing*{\section}{0pt}{12pt}{8pt}
+
+% ---------- A small subheader style ----------
+\newcommand{\secondaryheader}[1]{%
+\vspace{6pt}
+{\large\bfseries #1}\par
+\vspace{2pt}
+}
+
+% ---------- Equation spacing ----------
+\setlength{\abovedisplayskip}{8pt}
+\setlength{\belowdisplayskip}{8pt}
+
+% ---------- Centered model equation block ----------
+\newcommand{\modelequation}[1]{%
+\vspace{2pt}
+\begin{center}
+{\Large $ #1 $}
+\end{center}
+\vspace{2pt}
+}
+
+% ---------- Timeline helper macro (text only) ----------
+\newcommand{\phasecell}[2]{%
+  \multirow{#1}{*}{\centering\bfseries #2}%
+}
+
+\begin{document}
+
+% =======================
+% Cover page
+% =======================
+\begin{titlepage}
+\thispagestyle{empty}
+
+% --- Background image ---
+\tikz[remember picture,overlay]{%
+\node[opacity=0.24,inner sep=0pt]
+at (current page.center)
+{\includegraphics[width=\paperwidth,height=\paperheight]{plane.jpg}};
+}
+
+\centering
+\vspace*{2.8cm}
+
+{\Huge\bfseries\color{titleblue}
+Lộ Trình Danh Mục Tổng Thể\par}
+\vspace{8pt}
+
+{\Large
+Phương Pháp Số, Tính Toán Hiệu Năng Cao (HPC), và Bộ Giải Mức Nghiêng Cứu\par}
+
+\vspace{2.0cm}
+
+{\Large
+Max Minh Le\par}
+
+\vspace{1.2cm}
+
+{\large
+\today\par}
+
+\vfill
+\end{titlepage}
+
+% =======================
+% Purpose
+% =======================
+\secondaryheader{Mục Tiêu và Định Hướng Nghiên Cứu}
+
+Danh mục này được thiết kế một cách rõ ràng nhằm thể hiện năng lực phân tích số ở mức nghiên cứu, mức độ trưởng thành trong phát triển bộ giải, và nhận thức về tính toán hiệu năng cao phù hợp cho bậc học sau đại học nâng cao và các hồ sơ ứng tuyển nghiên cứu sinh tiến sĩ. Trọng tâm đặt vào tính chặt chẽ toán học, sự rõ ràng của thuật toán, khả năng mở rộng, tính tái lập, và đánh giá phê bình các phương pháp số vượt ra ngoài phạm vi triển khai kiểu bài tập lớp học.
+
+Mỗi dự án nhấn mạnh khả năng tự thiết kế, kiểm chứng, và mở rộng bộ giải CFD, đồng thời kết nối lý thuyết với triển khai. Danh mục này đóng vai trò như một minh chứng có cấu trúc về mức độ sẵn sàng nghiên cứu, năng lực tự học có định hướng, và tầm nhìn phát triển bộ giải dài hạn trên nhiều lớp PDE khác nhau.
+
+Danh mục này cũng hướng mạnh tới CFD liên quan hàng không vũ trụ, với kiểm chứng dựa trên các bài toán chuẩn kinh điển trong khí động học và động cơ. Trọng tâm đặt vào tư duy vô thứ nguyên và nhận thức chế độ dòng chảy, bao gồm ảnh hưởng của số Reynolds và số Mach, để hành vi bộ giải được diễn giải theo vật lý thay vì chỉ theo hình ảnh. Kết quả được kiểm chứng thông qua tinh chỉnh lưới, kiểm tra bảo toàn, và so sánh với nghiệm tham chiếu đã công bố. Mục tiêu cuối cùng là chứng minh kỹ năng phát triển bộ giải có thể áp dụng trực tiếp cho khí động học, động cơ, và các quy trình kỹ thuật khí động nhiệt trong thực tế.
+
+
+% ============================================================
+\section*{\textcolor{sectionred}{1. Bài Toán Parabolic: Phương Trình Nhiệt và Khuếch Tán}}
+
+\secondaryheader{Tóm Tắt}
+
+\modelequation{\frac{\partial u}{\partial t}=\alpha\left(\frac{\partial^2 u}{\partial x^2}+\frac{\partial^2 u}{\partial y^2}\right)}
+
+Dự án này tập trung giải các phương trình đạo hàm riêng dạng parabolic, cụ thể là dẫn nhiệt và khuếch tán theo thời gian. Mục tiêu không chỉ là thu được trường nhiệt độ đúng, mà còn hiểu sâu hành vi tích phân theo thời gian, giới hạn ổn định, lan truyền sai số, xu hướng hội tụ, và hiệu năng bộ giải khi tăng số chiều.
+
+Công việc bắt đầu từ khuếch tán 1D theo thời gian và kiểm chứng với nghiệm giải tích, sau đó mở rộng sang dẫn nhiệt 2D bằng phương pháp ẩn luân phiên (ADI), và chuẩn bị nền tảng cho mở rộng 3D trong tương lai. Trọng tâm đặt vào cấu trúc bộ giải, áp đặt điều kiện biên, thiết kế mô-đun gọn sạch, và trực quan hóa chất lượng chuyên nghiệp.
+
+\secondaryheader{Các Phương Pháp Số và Khái Niệm Chính}
+\begin{itemize}
+\item Thiết lập phương trình chi phối và vô thứ nguyên hóa
+\item Lược đồ FTCS tường minh với ràng buộc ổn định theo số Fourier
+\item FTCS ẩn hoàn toàn và tích phân theo thời gian Crank Nicolson
+\item Tách ADI để giải ẩn 2D hiệu quả
+\item Thuật toán Thomas cho hệ tam đường chéo
+\item Phân tích ổn định và khảo sát độ nhạy theo bước thời gian
+\item Chuẩn sai số gồm $L_2$ và $L_\infty$
+\item Tinh chỉnh lưới và kiểm chứng hội tụ
+\item Bộ giải tương đương triển khai bằng C++, Python, và Fortran
+\item Phiên bản tham chiếu một tệp và phiên bản mô-đun
+\end{itemize}
+
+\secondaryheader{Ứng Dụng Thực Tế}
+Truyền nhiệt trong các cấu kiện rắn và vật liệu nhiều lớp, quản lý nhiệt cho điện tử và làm mát chip, ứng suất nhiệt theo thời gian trong kết cấu hàng không vũ trụ, mô hình hóa runaway nhiệt của pin, khuếch tán nhiệt trong đất, hệ địa nhiệt, khuếch tán vật chất và bài toán chuyển pha, khuếch tán chất ô nhiễm trong môi trường xốp, khuếch tán sinh học như vận chuyển thuốc, và nền tảng số cho các bộ giải đa vật lý có ghép nhiệt.
+
+Trong hàng không vũ trụ, các phương pháp này hỗ trợ phân tích nhiệt theo thời gian cho cánh tuabin, lớp lót buồng đốt, vỏ thiết bị điện tử hàng không, tấm điều khiển nhiệt vệ tinh, khuếch tán nhiệt khi tái nhập trong kết cấu rắn, và các mô phỏng ghép khí động nhiệt nơi bộ giải dòng chảy trao đổi thông lượng nhiệt với miền rắn.
+
+
+% ============================================================
+\section*{\textcolor{sectionred}{2. Bài Toán Elliptic: Khuếch Tán Trạng Thái Dừng và Phương Trình Poisson}}
+
+\secondaryheader{Tóm Tắt}
+
+\modelequation{\nabla^2 u=f (x,y)}
+
+PDE dạng elliptic mô tả các hiện tượng cân bằng ở trạng thái dừng và là nền tảng toán học của nhiều thuật toán CFD, đặc biệt là hiệu chỉnh áp suất và cưỡng bức điều kiện không nén được. Dự án này phát triển bộ giải cho phương trình Laplace và Poisson, và nhấn mạnh việc giải hiệu quả các hệ thưa kích thước lớn.
+
+Các bộ giải này tạo nền tảng cần thiết cho ghép áp suất vận tốc trong các bộ giải Navier Stokes không nén được, và làm rõ vai trò toán học của các toán tử elliptic.
+
+Bộ giải elliptic cưỡng bức các ràng buộc vật lý thay vì trực tiếp tiến hóa trường dòng chảy. Phương trình Poisson xuất hiện tự nhiên trong các phương pháp hiệu chỉnh áp suất dùng cho khí động học không nén được và các dòng chảy bên trong. Vì vậy, bộ giải elliptic chính xác là then chốt cho bảo toàn khối lượng, ổn định số, và khả năng mở rộng trong quy trình CFD hàng không vũ trụ.
+
+
+\secondaryheader{Các Phương Pháp Số và Khái Niệm Chính}
+\begin{itemize}
+\item Thiết lập phương trình Laplace và Poisson
+\item Rời rạc hóa sai phân hữu hạn và thể tích hữu hạn
+\item Jacobi, Gauss Seidel, và SOR (quá thư giãn kế tiếp)
+\item Bộ giải liên hợp CG cho hệ đối xứng
+\item Theo dõi phần dư và chẩn đoán hội tụ
+\item Phụ thuộc theo lưới và so sánh hiệu năng bộ giải
+\item Vai trò bộ giải elliptic trong hiệu chỉnh áp suất và cưỡng bức không nén được cho dòng chảy khí động
+\item Bộ giải tương đương triển khai bằng C++, Python, và Fortran
+
+\end{itemize}
+
+\secondaryheader{Ứng Dụng Thực Tế}
+Tĩnh điện và trường thế điện, dẫn nhiệt trạng thái dừng, hiệu chỉnh áp suất và cưỡng bức không nén được trong bộ giải CFD, mô hình dòng nước ngầm và thấm, tính thế hấp dẫn, cân bằng kết cấu và biến dạng màng, xử lý ảnh và làm mượt, khuếch tán ổn định trong môi trường xốp, và các bộ giải hệ tuyến tính cốt lõi trong phương pháp chiếu cho Navier Stokes.
+
+% ============================================================
+\section*{\textcolor{sectionred}{3. Bài Toán Hyperbolic: Hệ Sóng Tuyến Tính và Phi Tuyến}}
+
+\secondaryheader{Tóm Tắt}
+
+\modelequation{\frac{\partial^2 u}{\partial t^2}=c^2\left(\frac{\partial^2 u}{\partial x^2}+\frac{\partial^2 u}{\partial y^2}\right)}
+
+PDE dạng hyperbolic mô tả lan truyền sóng, đối lưu, và các hiện tượng chi phối bởi vận chuyển. Dự án này tập trung vào ràng buộc ổn định, tán xạ số, khuếch tán số, và hành vi bắt sốc trong các bài toán phụ thuộc thời gian.
+
+Cả phương trình sóng tuyến tính và phi tuyến được giải bằng các lược đồ upwind và lược đồ dựa trên thông lượng, với trọng tâm là điều kiện CFL và các dạng bảo toàn.
+
+Trong hàng không vũ trụ, hệ hyperbolic chi phối lan truyền sóng áp suất, nhiễu âm học, sóng xung kích, và vận chuyển đối lưu của các đại lượng dòng chảy. Xử lý số các phương trình này ảnh hưởng trực tiếp tới ổn định, độ chính xác, và độ trung thực vật lý trong mô phỏng khí động. Phần này nhấn mạnh mối liên hệ giữa lược đồ số và sự lan truyền thông tin, làm rõ cách lựa chọn rời rạc hóa chi phối độ phân giải tốc độ sóng, mức khuếch tán số, và độ sắc nét của sốc.
+
+
+\secondaryheader{Các Phương Pháp Số và Khái Niệm Chính}
+\begin{itemize}
+\item Phương trình đối lưu và phương trình sóng tuyến tính
+\item Upwind, Lax Friedrichs, và Lax Wendroff
+\item Lược đồ TVD với bộ hạn chế thông lượng
+\item Phân tích ổn định CFL
+\item Đặc trưng, hướng lan truyền sóng, và vận chuyển thông tin trong hệ hyperbolic
+\item Độ nhớt nhân tạo và khuếch tán số
+\item Hành vi bắt sốc
+\item Bộ giải tương đương triển khai bằng C++, Python, và Fortran
+
+\end{itemize}
+
+\secondaryheader{Ứng Dụng Thực Tế}
+Động lực học chất lưu nén được, lan truyền sóng âm, mô hình sóng xung kích, giao thông và động lực đám đông, vận chuyển khí quyển và đối lưu chất ô nhiễm, sóng thần và mô hình nước nông, động lực khí và khí âm học hàng không, lan truyền sóng điện từ, hệ truyền tín hiệu, và nền tảng số cho các bộ giải bảo toàn.
+
+Trong kỹ thuật hàng không vũ trụ, các phương pháp này là nền tảng cho khí động học nén được, khí âm học, dự đoán sóng xung kích, phân tích đáp ứng gió giật, mô hình dòng chảy cận âm và siêu âm, và xử lý số của vận chuyển đối lưu trong các bộ giải cả inviscid lẫn viscous.
+
+
+% ============================================================
+\section*{\textcolor{sectionred}{4. Navier Stokes Không Nén Được: Khoang Dẫn Động Bởi Nắp}}
+
+\secondaryheader{Tóm Tắt}
+
+\modelequation{\frac{\partial \mathbf{u}}{\partial t}+(\mathbf{u}\cdot\nabla)\mathbf{u}=-\frac{1}{\rho}\nabla p+\nu\nabla^2\mathbf{u}+\mathbf{f}}
+
+Dự án chủ lực này giải phương trình Navier Stokes không nén được bằng bài toán chuẩn khoang dẫn động bởi nắp (lid driven cavity). Ghép áp suất vận tốc được xử lý bằng các phương pháp chiếu như SIMPLE và các biến thể kiểu PISO.
+
+Bộ giải này tích hợp toàn bộ các thành phần từ các dự án trước và đóng vai trò như một minh chứng tổng hợp về ổn định số, độ trưởng thành của bộ giải, và chất lượng kiến trúc mã.
+
+Bài toán khoang dẫn động bởi nắp được xem như một chuẩn kinh điển để đánh giá ghép áp suất vận tốc, tính nhất quán rời rạc hóa, và ổn định trong các bộ giải không nén được. Trọng tâm đặt vào cấu trúc thuật toán, kiểm soát sai số, và hành vi hội tụ thay vì chỉ trực quan hóa dòng chảy.
+
+
+
+\secondaryheader{Các Phương Pháp Số và Khái Niệm Chính}
+\begin{itemize}
+\item Phương trình Navier Stokes không nén được
+\item Phương pháp bước phân đoạn và phương pháp chiếu
+\item Giải phương trình Poisson áp suất
+\item Tương tác giữa hiệu chỉnh áp suất elliptic và các toán tử vận chuyển vận tốc
+\item Kiểm soát độ phân kỳ của vận tốc
+\item Hội tụ theo lưới và kiểm chứng theo chuẩn tham chiếu
+\item Theo dõi phần dư và độ nhạy theo bước thời gian
+\item Bộ giải tương đương triển khai bằng C++, Python, và Fortran
+
+\end{itemize}
+
+\secondaryheader{Ứng Dụng Thực Tế}
+Dòng chảy nhớt bên trong và bên ngoài, thông gió và mô hình luồng không khí trong phòng, dòng trộn và tuần hoàn, bôi trơn và dòng Reynolds thấp, dòng sinh học như vận chuyển máu trong mạch, vi lưu, mô hình dòng gió đô thị, dòng chảy công nghệ, kiểm chứng chuẩn cho bộ giải CFD, và phát triển thuật toán không nén được ở mức nghiên cứu.
+
+Trong nghiên cứu hàng không vũ trụ và cơ học chất lưu, bộ giải không nén được là nền tảng cho mô hình dòng Mach thấp, kiểm chứng thuật toán, và phát triển phương pháp số trước khi mở rộng sang chế độ nén được và tốc độ cao.
+
+
+% ============================================================
+\section*{\color{sectionred}5. Dòng Chảy Nén Được và Bắt Sốc: Euler và Navier Stokes}
+
+\secondaryheader{Tóm Tắt}
+
+\modelequation{\frac{\partial \mathbf{U}}{\partial t}+\frac{\partial \mathbf{F}(\mathbf{U})}{\partial x}+\frac{\partial \mathbf{G}(\mathbf{U})}{\partial y}=0}
+
+Dự án này nhắm tới động lực khí nén được, nơi sốc và gián đoạn xuất hiện tự nhiên. Mục tiêu là thể hiện các định luật bảo toàn ở cấp hệ, hành vi theo đặc trưng, và thiết kế thông lượng số bền vững. So với dự án sóng, phần này có dạng bảo toàn rõ ràng, phi tuyến, và được thiết kế để xử lý gián đoạn mà không tạo dao động phi vật lý.
+
+Khác với dòng không nén được, hệ nén được tạo ra ghép phi tuyến mạnh giữa bảo toàn khối lượng, động lượng, và năng lượng, dẫn tới sóng xung kích, gián đoạn tiếp xúc, và quạt giãn nở. Phần này xem dòng nén được chủ yếu như một thách thức số, nhấn mạnh dạng bảo toàn, hành vi theo đặc trưng, và ổn định dưới nghiệm gián đoạn thay vì chỉ tối ưu độ chính xác trên nghiệm trơn.
+
+
+\secondaryheader{Các Phương Pháp Số và Khái Niệm Chính}
+\begin{itemize}
+\item Dạng thể tích hữu hạn bảo toàn cho Euler và Navier Stokes nén được
+\item Cấu trúc riêng của hệ hyperbolic và lan truyền sóng theo đặc trưng
+\item Hành vi entropy số và nghiệm yếu chấp nhận được về mặt vật lý
+\item Trực giác bài toán Riemann, tốc độ sóng, và tư duy theo đặc trưng
+\item Thông lượng bắt sốc như Rusanov, HLL, HLLC, kiểu Roe
+\item Tái dựng bậc cao với bộ hạn chế như MUSCL, TVD, WENO
+\item Ràng buộc CFL cho hệ nén được và độ cứng ở Mach cao
+\item Bài toán kiểm chứng như ống Sod, bài toán Lax, Shu Osher, tương tác sốc xoáy
+\item Chẩn đoán như tổng biến thiên, xét entropy, kiểm tra sai số bảo toàn
+\item Bộ giải tương đương triển khai bằng C++, Python, và Fortran
+
+\end{itemize}
+
+\secondaryheader{Ứng Dụng Thực Tế}
+Khí động học siêu âm, dòng trong vòi phun và tia phản lực, tương tác sốc lớp biên, mô hình sóng nổ, nhiệt tái nhập ghép với dòng nén được, và hàng không vũ trụ tốc độ cao.
+
+Bộ giải dòng nén được là trung tâm trong kỹ thuật hàng không vũ trụ, chi phối mô phỏng khí động tốc độ cao, hệ động cơ, và các môi trường bị chi phối bởi sốc.
+
+
+% ============================================================
+\section*{\textcolor{sectionred}{6. Song Song Hóa và Tối Ưu: Thực Thi CFD Hiệu Năng Cao}}
+
+\secondaryheader{Tóm Tắt}
+
+Dự án này tập trung mở rộng các bộ giải CFD vượt khỏi thực thi một lõi, tiến vào môi trường tính toán hiệu năng cao. Mục tiêu là thể hiện hiểu biết về mô hình lập trình song song, hành vi bộ nhớ, và các nút thắt hiệu năng trong tính toán khoa học, thay vì chỉ theo đuổi tăng tốc thô.
+
+Song song hóa được xem như một vấn đề số và thuật toán, không chỉ là một tác vụ phần mềm.
+
+\secondaryheader{Các Phương Pháp Số và Khái Niệm Chính}
+\begin{itemize}
+\item Chiến lược phân rã miền cho lưới cấu trúc
+\item Hành vi tăng tốc strong scaling và weak scaling
+\item Song song hóa MPI cho bộ giải sai phân và thể tích hữu hạn
+\item Halo exchange và mẫu hình truyền thông
+\item Song song hóa bộ nhớ chia sẻ bằng OpenMP
+\item Mô hình lai MPI + OpenMP
+\item Hiệu quả cache và mẫu truy cập bộ nhớ
+\item Profiling và phân tích hiệu năng
+\item Bộ giải tương đương triển khai bằng C++, Python, và Fortran
+
+\end{itemize}
+
+\secondaryheader{Phạm Vi Triển Khai}
+
+Song song hóa được áp dụng từng bước cho các bộ giải đã phát triển ở các phần trước, bao gồm:
+\begin{itemize}
+\item Bộ giải nhiệt parabolic
+\item Bộ giải Poisson elliptic
+\item Bộ giải sóng hyperbolic
+\item Bộ giải Navier Stokes không nén được
+\item Lược đồ bắt sốc cho dòng nén được
+\end{itemize}
+
+Mỗi bộ giải được phân tích ở chế độ tuần tự và song song để định lượng:
+\begin{itemize}
+\item Speedup và hiệu suất
+\item Chi phí truyền thông
+\item Giới hạn khả năng mở rộng
+\end{itemize}
+
+\secondaryheader{Ứng Dụng Thực Tế}
+Mô phỏng CFD quy mô lớn trong hàng không vũ trụ và năng lượng, mô hình thời tiết và khí hậu, phân tích luồng gió đô thị, mô phỏng quy trình công nghiệp, và các tải công việc siêu máy tính quốc gia nơi khả năng mở rộng và hiệu năng của bộ giải quyết định tính khả thi.
+
+% ============================================================
+\section*{\textcolor{sectionred}{7. OpenFOAM và ANSYS Fluent: Quy Trình CFD Công Nghiệp và Kiểm Chứng}}
+
+\secondaryheader{Tóm Tắt}
+
+Phần này tập trung vào việc sử dụng có cấu trúc các phần mềm CFD công nghiệp đã được thiết lập, cụ thể là OpenFOAM và ANSYS Fluent, nhằm bổ sung cho hướng phát triển bộ giải từ nguyên lý cơ bản. Mục tiêu không chỉ là thành thạo công cụ, mà là hiểu sâu cách các bộ giải công nghiệp triển khai phương pháp số, mô hình nhiễu loạn, và ghép áp suất vận tốc, cũng như cách các lựa chọn này liên hệ với các dạng toán học nền tảng.
+
+Trọng tâm đặt vào verification, validation, hành vi bộ giải, độ nhạy theo lưới, và diễn giải kết quả trong giới hạn của các giả thiết mô hình. Các nghiên cứu này nối cầu giữa phát triển bộ giải học thuật và quy trình kỹ thuật trong thực tế.
+
+\secondaryheader{Kiểm Chứng Theo Hướng Hàng Không Vũ Trụ và Lựa Chọn Bài Toán}
+
+Bộ giải CFD công nghiệp được dùng rộng rãi trong hàng không vũ trụ không phải vì luôn chính xác, mà vì chúng cân bằng được độ bền, khả năng mở rộng, và tính thực dụng kỹ thuật. Trong phần này, OpenFOAM và ANSYS Fluent được áp dụng cho các bài toán dòng chảy chuẩn liên quan hàng không vũ trụ, được chọn để bộc lộ hành vi bộ giải thay vì nhằm tạo kết quả đẹp mắt.
+
+Các ca kiểm chứng tiêu biểu gồm:
+\begin{itemize}
+\item Dòng khí động bên ngoài quanh vật thể tù và vật thể khí động
+\item Dòng chảy trong ống và kênh đại diện cho đường làm mát
+\item Phát triển lớp biên chuyển tiếp và nhiễu loạn
+\item Dòng không nén được do chênh áp liên quan khí động tốc độ thấp
+\end{itemize}
+
+
+
+\secondaryheader{Các Phương Pháp Số và Khái Niệm Chính}
+\begin{itemize}
+\item Rời rạc hóa thể tích hữu hạn trên lưới phi cấu trúc
+\item Thuật toán ghép áp suất vận tốc:
+  \begin{itemize}
+  \item SIMPLE, SIMPLEC, PISO, và bộ giải ghép
+  \end{itemize}
+\item Giả thiết mô hình nhiễu loạn:
+  \begin{itemize}
+  \item Mô hình RANS (ví dụ $k$--$\varepsilon$, $k$--$\omega$, SST)
+  \item Xử lý gần tường và wall functions
+  \end{itemize}
+\item Đánh đổi giữa dạng ổn định và dạng phụ thuộc thời gian
+\item Lựa chọn bộ giải tuyến tính và tiền điều kiện
+\item Chỉ số chất lượng lưới và phân tích độ nhạy
+\item Mô hình điều kiện biên và tính nhất quán vật lý
+\item Theo dõi phần dư so với hội tụ vật lý
+\item Kiểm chứng theo nghiệm giải tích và các bài toán chuẩn
+\end{itemize}
+
+\secondaryheader{So Sánh với Bộ Giải Tự Phát Triển}
+
+Kết quả từ OpenFOAM và ANSYS Fluent được so sánh có hệ thống với các bộ giải sai phân và thể tích hữu hạn tự phát triển ở các phần trước. So sánh này làm nổi bật:
+
+\begin{itemize}
+\item Vai trò của bộ giải Poisson áp suất elliptic trong mã công nghiệp
+\item Khác biệt giữa chiến lược giải tách và giải ghép
+\item Khuếch tán số do mô hình nhiễu loạn đưa vào
+\item Độ nhạy với bước thời gian và tham số relaxation
+\item Đánh đổi giữa độ bền và độ trung thực vật lý
+\end{itemize}
+
+Các so sánh này củng cố hiểu biết CFD độc lập công cụ, thay vì phụ thuộc vào một nền tảng phần mềm duy nhất.
+
+\secondaryheader{Hiểu Các Giới Hạn của Bộ Giải CFD Công Nghiệp}
+
+Một kết quả quan trọng của phần này là nhận ra các điểm mà bộ giải CFD công nghiệp tạo ra thỏa hiệp về số hoặc mô hình. Dù OpenFOAM và ANSYS Fluent cung cấp khung làm việc bền vững, độ chính xác của chúng phụ thuộc mạnh vào mô hình nhiễu loạn, chất lượng lưới, và các tham số số do người dùng chọn.
+
+Các giới hạn chính được khảo sát gồm:
+\begin{itemize}
+\item Khuếch tán số do thông lượng thiên về upwind
+\item Độ nhạy của kết quả theo lựa chọn mô hình nhiễu loạn
+\item Phụ thuộc vào under-relaxation và tinh chỉnh bộ giải để hội tụ
+\item Tính dị hướng do lưới và ràng buộc độ phân giải gần tường
+\end{itemize}
+
+
+\secondaryheader{Ứng Dụng Thực Tế}
+
+Khí động học bên ngoài và bên trong, HVAC và thông gió, mô hình dòng gió đô thị, dòng tuabin và vòi phun, khí động xe, trộn công nghiệp, phân tích dòng môi trường, và các nghiên cứu kiểm chứng phục vụ quy trình thiết kế trong hàng không vũ trụ, năng lượng, và môi trường xây dựng.
+
+Trong hàng không vũ trụ, các nghiên cứu này nhấn mạnh rằng công cụ CFD công nghiệp cần được sử dụng với hiểu biết rõ về phương pháp số và giả thiết mô hình. Kết quả được xem như mô hình kỹ thuật thay vì nghiệm đúng, và được đánh giá bằng kiểm chứng và khảo sát độ nhạy thay vì chỉ nhìn hình ảnh.
+
+
+
+% ============================================================
+\section*{\textcolor{sectionred}{8. CFD Tăng Cường Bằng AI: Phương Pháp Lai Vật Lý và Dữ Liệu}}
+
+\secondaryheader{Tóm Tắt}
+
+Phần này khảo sát việc tích hợp các kỹ thuật học máy với bộ giải CFD cổ điển nhằm tăng năng lực mô hình hóa, giảm chi phí tính toán, và cải thiện khả năng mở rộng. Trọng tâm đặt vào các cách tiếp cận lai, nơi mô hình dựa trên dữ liệu bổ trợ cho bộ giải dựa trên vật lý thay vì thay thế chúng.
+
+Học máy được xem như một công cụ số tương tác với phương trình chi phối, lược đồ rời rạc, và cấu trúc bộ giải. Mục tiêu là thể hiện hiểu biết có nguyên tắc về nơi học máy hữu ích, nơi thất bại, và cách đánh giá nghiêm ngặt so với CFD truyền thống.
+
+\secondaryheader{Các Phương Pháp Số và Khái Niệm Chính}
+\begin{itemize}
+\item Học có giám sát cho hồi quy trường nghiệm
+\item Mạng nơ-ron như bộ xấp xỉ hàm phi tuyến
+\item Hàm mất mát và tối ưu trong ngữ cảnh nghiệm PDE
+\item Học có ràng buộc vật lý bằng phần dư PDE
+\item Mô hình thay thế dựa dữ liệu cho PDE phụ thuộc thời gian
+\item Mô hình giảm bậc kết hợp học máy
+\item Tăng tốc bộ giải và dự đoán tham số bằng ML
+\item Ổn định, khả năng khái quát, và phân tích sai số cho mô hình học được
+\end{itemize}
+
+\secondaryheader{Phạm Vi Triển Khai}
+
+Các mô hình học máy được áp dụng song song với các bộ giải CFD đã phát triển ở các phần trước. Triển khai gồm:
+\begin{itemize}
+\item Huấn luyện mô hình thay thế cho phương trình nhiệt 1D và 2D
+\item So sánh mô hình ML với nghiệm sai phân hữu hạn
+\item Mạng PINN để cưỡng bức phương trình chi phối
+\item Mô hình giảm bậc bằng POD với tiến hóa thời gian học được
+\item Hỗ trợ cho bộ giải elliptic và Poisson, gồm dự đoán số vòng lặp và lựa chọn tham số relaxation
+\end{itemize}
+
+Tất cả mô hình học máy được kiểm chứng bằng chuẩn sai số định lượng, hành vi hội tụ, và so sánh chi phí tính toán với bộ giải số nền.
+
+\secondaryheader{Ứng Dụng Thực Tế}
+
+Tăng tốc mô phỏng CFD cho khảo sát tham số và tối ưu, mô hình giảm bậc cho dự đoán và điều khiển thời gian thực, bộ giải hỗ trợ dữ liệu cho mô phỏng kỹ thuật quy mô lớn, mô hình lai vật lý và dữ liệu trong hàng không vũ trụ và năng lượng, và nghiên cứu học máy cho tính toán khoa học và PDE số.
+
+% ============================================================
+\section*{\textcolor{sectionred}{9. Xây Dựng Website và Biên Soạn PDF: Trình Bày Nghiên Cứu Có Tái Lập}}
+
+\secondaryheader{Tóm Tắt}
+
+Phần này tập trung chuyển hóa công việc kỹ thuật trong danh mục thành một sản phẩm nghiên cứu rõ ràng, có thể tái lập, và trình bày chuyên nghiệp. Mục tiêu không phải thiết kế mỹ thuật, mà là truyền thông khoa học, truy vết, và khả năng bảo trì lâu dài.
+
+Danh mục được cấu trúc để người đọc có thể hiểu phương pháp, tái lập kết quả, và kiểm tra triển khai bộ giải mà không mơ hồ.
+
+\secondaryheader{Các Khái Niệm và Thực Hành Chính}
+\begin{itemize}
+\item Nguyên tắc nghiên cứu tính toán có tái lập
+\item Tách bạch rõ giữa lý thuyết, triển khai, và kết quả
+\item Tài liệu hóa nhất quán về giả thiết và giới hạn
+\item Quy trình phát triển có kiểm soát phiên bản
+\end{itemize}
+
+\secondaryheader{Phạm Vi Triển Khai}
+\begin{itemize}
+\item Kho Git công khai cho từng họ bộ giải
+\item Cấu trúc thư mục chuẩn cho mã, dữ liệu, và hình
+\item Tự động hóa tạo hình khi phù hợp
+\item PDF danh mục biên dịch từ nguồn \LaTeX
+\item Website danh mục triển khai bằng GitHub Pages
+\end{itemize}
+
+Mỗi phần dự án gồm:
+\begin{itemize}
+\item Phương trình chi phối và phương pháp số
+\item Kết quả verification và validation
+\item Nghiên cứu hiệu năng và hội tụ
+\item Thảo luận rõ hành vi số
+\end{itemize}
+
+\secondaryheader{Ứng Dụng Thực Tế}
+
+Danh mục nghiên cứu học thuật, hồ sơ PhD, phỏng vấn kỹ thuật, đề xuất tài trợ nghiên cứu, và các dự án phát triển bộ giải dài hạn nơi sự rõ ràng, tái lập, và chất lượng tài liệu quan trọng không kém độ đúng của nghiệm số.
+
+% ============================================================
+\section*{\textcolor{sectionred}{Tổng Quan Lộ Trình Cấp Cao}}
+
+Các mốc lộ trình dưới đây mang tính xấp xỉ và có thể thay đổi tùy theo mức độ duy trì nỗ lực và thời gian đầu tư thực tế trong quá trình thực hiện.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.28}
+\setlength{\tabcolsep}{8pt}
+
+\begin{tabular}{>{\centering\arraybackslash}p{4.0cm}
+                >{\raggedright\arraybackslash}p{5.8cm}
+                >{\raggedright\arraybackslash}p{4.8cm}
+                >{\centering\arraybackslash}p{1.6cm}}
+\toprule
+\midrule
+\textbf{Giai đoạn} & \textbf{Dự án} & \textbf{Phương pháp} & \textbf{Số ngày} \\
+\midrule
+\midrule
+
+\phasecell{3}{\textcolor{green!60!black}{NỀN TẢNG}}
+ & Bộ giải Parabolic  & Sai phân hữu hạn 1D 2D & 15 \\
+ & Bộ giải Elliptic   & Poisson Laplace         & 15 \\
+ & Bộ giải Hyperbolic & Upwind TVD              & 15 \\
+\midrule
+
+\phasecell{3}{\textcolor{blue!70!black}{TRUNG CẤP}}
+ & Bộ giải Navier Stokes & Chiếu 2D 3D        & 15 \\
+ & Dòng nén được          & Bắt sốc            & 30 \\
+ & Song song hóa          & MPI OpenMP         & 30 \\
+\midrule
+
+\phasecell{3}{\textcolor{orange!85!black}{NÂNG CAO}}
+ & OpenFOAM và ANSYS Fluent & Quy trình CFD công nghiệp & 15 \\
+ & CFD tăng cường bằng AI   & PINN ROM Mô hình thay thế  & 70 \\
+ & Website và biên soạn PDF & GitHub Pages \LaTeX        & 10 \\
+\midrule
+\midrule
+
+\textbf{Tổng} &  &  & \textbf{215} \\
+\bottomrule
+\bottomrule
+\end{tabular}
+\end{center}
+
+\end{document}
+% \setcounter{page}{10}

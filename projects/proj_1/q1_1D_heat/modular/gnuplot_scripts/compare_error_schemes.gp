@@ -7,7 +7,7 @@ set datafile separator "\t"
 set datafile commentschars "#"
 
 set xlabel "X [ft]"
-set ylabel "Error = T_scheme - T_exact [degree F]"
+set ylabel "Error = T_{scheme} - T_{exact} [ {/Symbol \260}F ]"
 set title sprintf("Error vs Exact, dt = %.2f hr, t = %s hr", dt, tlabel)
 
 set grid

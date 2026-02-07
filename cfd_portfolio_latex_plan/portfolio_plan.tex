@@ -1,0 +1,525 @@
+\documentclass[12pt]{article}
+
+% ---------- Page layout ----------
+\usepackage[a4paper,
+            left=1.4cm,
+            right=1.4cm,
+            top=1.4cm,
+            bottom=1.4cm]{geometry}
+\linespread{1.1}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+% ---------- Colors (load ONCE) ----------
+\usepackage[table]{xcolor}
+\definecolor{titleblue}{RGB}{0,0,120}
+\definecolor{sectionred}{RGB}{160,0,0}
+
+% ---------- Math / graphics ----------
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikz}
+
+% ---------- Better layout polish ----------
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{titlesec}
+
+% ---------- Tables ----------
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{arydshln}
+
+% ---------- Compact lists ----------
+\usepackage{enumitem}
+\setlist[itemize]{nosep,leftmargin=1.3em}
+\setlist[itemize]{topsep=2pt,itemsep=1pt}
+
+% ---------- Header: Page X of Y (top center, no line) ----------
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{Page \thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% ---------- Section formatting ----------
+\titleformat{\section}
+  {\Large\bfseries\color{sectionred}}
+  {}{0pt}{}
+\titlespacing*{\section}{0pt}{12pt}{8pt}
+
+% ---------- A small subheader style ----------
+\newcommand{\secondaryheader}[1]{%
+\vspace{6pt}
+{\large\bfseries #1}\par
+\vspace{2pt}
+}
+
+% ---------- Equation spacing ----------
+\setlength{\abovedisplayskip}{8pt}
+\setlength{\belowdisplayskip}{8pt}
+
+% ---------- Centered model equation block ----------
+\newcommand{\modelequation}[1]{%
+\vspace{2pt}
+\begin{center}
+{\Large $ #1 $}
+\end{center}
+\vspace{2pt}
+}
+
+% ---------- Timeline helper macro (text only) ----------
+\newcommand{\phasecell}[2]{%
+  \multirow{#1}{*}{\centering\bfseries #2}%
+}
+
+\begin{document}
+
+% =======================
+% Cover page
+% =======================
+\begin{titlepage}
+\thispagestyle{empty}
+
+% --- Background image ---
+\tikz[remember picture,overlay]{%
+\node[opacity=0.24,inner sep=0pt]
+at (current page.center)
+{\includegraphics[width=\paperwidth,height=\paperheight]{plane.jpg}};
+}
+
+\centering
+\vspace*{2.8cm}
+
+{\Huge\bfseries\color{titleblue}
+Grand CFD Portfolio Roadmap\par}
+\vspace{8pt}
+
+{\Large
+Numerical Methods, High Performance Computing (HPC), and Research Grade Solvers\par}
+
+\vspace{2.0cm}
+
+{\Large
+Max Minh Le\par}
+
+\vspace{1.2cm}
+
+{\large
+\today\par}
+
+\vfill
+\end{titlepage}
+
+% =======================
+% Purpose
+% =======================
+\secondaryheader{Purpose and Research Intent}
+
+This portfolio is explicitly designed to demonstrate research level numerical analysis skills, solver development maturity, and high performance computing awareness suitable for advanced graduate study and PhD level research applications. The emphasis is placed on mathematical rigor, algorithmic clarity, scalability, reproducibility, and critical evaluation of numerical methods beyond classroom style implementations.
+
+Each project highlights the ability to independently design, verify, and extend CFD solvers while bridging theory and implementation. The portfolio serves as a structured demonstration of research readiness, self directed learning capability, and long term solver development vision across multiple PDE classes.
+
+This portfolio is additionally oriented toward aerospace-relevant CFD, with validation anchored in canonical aerodynamic and propulsion benchmarks. Emphasis is placed on nondimensional reasoning and flow-regime awareness, including Reynolds and Mach number effects, so that solver behavior is interpreted physically rather than visually. Results are verified through grid refinement, conservation checks, and comparison to published reference solutions. The end goal is to demonstrate solver development skills directly applicable to aerodynamics, propulsion, and aero-thermal engineering workflows.
+
+
+
+% ============================================================
+\section*{\textcolor{sectionred}{1. Parabolic Problems: Heat and Diffusion Equations}}
+
+\secondaryheader{Summary}
+
+\modelequation{\frac{\partial u}{\partial t}=\alpha\left(\frac{\partial^2 u}{\partial x^2}+\frac{\partial^2 u}{\partial y^2}\right)}
+
+This project focuses on solving parabolic partial differential equations, specifically transient heat conduction and diffusion problems. The objective is not only to obtain correct temperature fields, but to deeply understand time integration behavior, stability limits, error propagation, convergence trends, and solver performance as dimensionality increases.
+
+The work begins with 1D transient diffusion validated against analytical solutions, advances to 2D heat conduction using Alternating Direction Implicit methods, and prepares the foundation for future 3D extensions. Emphasis is placed on solver structure, boundary condition enforcement, clean modular design, and professional quality visualization.
+
+\secondaryheader{Key Numerical Methods and Concepts}
+\begin{itemize}
+\item Governing equation formulation and nondimensionalization
+\item Explicit FTCS scheme with Fourier number stability constraints
+\item Fully implicit FTCS and Crank Nicolson time integration
+\item ADI splitting for efficient 2D implicit solves
+\item Thomas algorithm for tridiagonal systems
+\item Stability analysis and timestep sensitivity studies
+\item Error norms including $L_2$ and $L_\infty$
+\item Grid refinement and convergence verification
+\item Identical solvers implemented in C++, Python, and Fortran
+\item Modular and single file reference implementations
+\end{itemize}
+
+\secondaryheader{Real World Applications}
+Heat transfer in solid components and layered materials, electronics thermal management and chip cooling, transient thermal stresses in aerospace structures, battery thermal runaway modeling, soil and ground heat diffusion, geothermal energy systems, material diffusion and phase change problems, pollutant diffusion in porous media, biological diffusion processes such as drug transport, and numerical foundations for multiphysics solvers involving thermal coupling.
+
+In aerospace applications, these methods underpin transient thermal analysis of turbine blades, combustor liners, avionics enclosures, satellite thermal control panels, re-entry heat diffusion in solid structures, and coupled aero-thermal simulations where fluid solvers exchange heat fluxes with solid domains.
+
+
+% ============================================================
+\section*{\textcolor{sectionred}{2. Elliptic Problems: Steady State Diffusion and Poisson Equations}}
+
+\secondaryheader{Summary}
+
+\modelequation{\nabla^2 u=f (x,y)}
+
+Elliptic PDEs represent steady state equilibrium phenomena and form the mathematical backbone of many CFD algorithms, particularly pressure correction and incompressibility enforcement. This project develops solvers for Laplace and Poisson equations and emphasizes efficient solution of large sparse systems.
+
+These solvers establish the foundation required for pressure velocity coupling in incompressible Navier Stokes solvers and expose the mathematical role of elliptic operators. 
+
+Elliptic solvers enforce physical constraints rather than directly advancing flow fields. The Poisson equation arises naturally in pressure correction methods used for incompressible aerodynamics and internal flows. Accurate elliptic solvers are therefore critical for mass conservation, numerical stability, and scalability in aerospace CFD workflows.
+
+
+\secondaryheader{Key Numerical Methods and Concepts}
+\begin{itemize}
+\item Laplace and Poisson equation formulation
+\item Finite difference and finite volume discretization
+\item Jacobi, Gauss Seidel, and Successive Over Relaxation methods
+\item Conjugate Gradient solvers for symmetric systems
+\item Residual monitoring and convergence diagnostics
+\item Grid dependence and solver efficiency comparisons
+\item Role of elliptic solvers in pressure correction and incompressibility enforcement for aerodynamic flows
+
+\end{itemize}
+
+\secondaryheader{Real World Applications}
+Electrostatics and electric potential fields, steady state heat conduction, pressure correction and incompressibility enforcement in CFD solvers, groundwater flow and seepage modeling, gravitational potential calculations, structural equilibrium and membrane deformation problems, image processing and smoothing operations, steady diffusion in porous media, and core linear system solvers underlying projection based Navier Stokes methods.
+
+% ============================================================
+\section*{\textcolor{sectionred}{3. Hyperbolic Problems: Linear and Nonlinear Wave Systems}}
+
+\secondaryheader{Summary}
+
+\modelequation{\frac{\partial^2 u}{\partial t^2}=c^2\left(\frac{\partial^2 u}{\partial x^2}+\frac{\partial^2 u}{\partial y^2}\right)}
+
+Hyperbolic PDEs model wave propagation, advection, and transport dominated phenomena. This project focuses on stability constraints, numerical dissipation, dispersion, and shock handling behavior in time dependent problems.
+
+Both linear and nonlinear wave equations are solved using upwind and flux based schemes, with emphasis on CFL constraints and conservative formulations.
+
+In aerospace applications, hyperbolic systems govern the propagation of pressure waves, acoustic disturbances, shocks, and convective transport of flow quantities. Numerical treatment of these equations directly impacts stability, accuracy, and physical fidelity in aerodynamic simulations. This section emphasizes the relationship between numerical schemes and information propagation, highlighting how discretization choices influence wave speed resolution, numerical dissipation, and shock sharpness. 
+
+
+\secondaryheader{Key Numerical Methods and Concepts}
+\begin{itemize}
+\item Linear advection and wave equations
+\item Upwind, Lax Friedrichs, and Lax Wendroff schemes
+\item TVD schemes with flux limiters
+\item CFL stability analysis
+\item Characteristics, wave propagation direction, and information transport in hyperbolic systems
+\item Artificial viscosity and numerical dissipation
+\item Shock capturing behavior
+\end{itemize}
+
+\secondaryheader{Real World Applications}
+Compressible fluid dynamics, acoustic wave propagation, shock wave modeling, traffic flow and crowd dynamics, atmospheric transport and pollutant advection, tsunami and shallow water wave modeling, gas dynamics and aeroacoustics, electromagnetic wave propagation, signal transmission systems, and numerical foundations for conservation law based CFD solvers.
+
+In aerospace engineering, these methods are fundamental to compressible aerodynamics, aeroacoustics, shock wave prediction, gust response analysis, transonic and supersonic flow modeling, and the numerical treatment of convective transport in both inviscid and viscous flow solvers.
+
+
+% ============================================================
+\section*{\textcolor{sectionred}{4. Incompressible Navier Stokes: Lid Driven Cavity}}
+
+\secondaryheader{Summary}
+
+\modelequation{\frac{\partial \mathbf{u}}{\partial t}+(\mathbf{u}\cdot\nabla)\mathbf{u}=-\frac{1}{\rho}\nabla p+\nu\nabla^2\mathbf{u}+\mathbf{f}}
+
+This flagship project solves the incompressible Navier Stokes equations using the classical lid driven cavity benchmark. Pressure velocity coupling is handled via projection methods such as SIMPLE and PISO style algorithms.
+
+This solver integrates all prior project components and serves as a capstone demonstration of numerical stability, solver maturity, and code architecture quality.
+
+The lid-driven cavity is treated as a canonical benchmark for assessing pressure–velocity coupling, discretization consistency, and stability in incompressible solvers. Emphasis is placed on algorithmic structure, error control, and convergence behavior rather than flow visualization.
+
+
+
+\secondaryheader{Key Numerical Methods and Concepts}
+\begin{itemize}
+\item Incompressible Navier Stokes equations
+\item Fractional step and projection methods
+\item Pressure Poisson equation solution
+\item Coupling between elliptic pressure correction and velocity transport operators
+\item Velocity divergence control
+\item Grid convergence and benchmark validation
+\item Residual monitoring and timestep sensitivity
+\end{itemize}
+
+\secondaryheader{Real World Applications}
+Internal and external viscous flows, ventilation and indoor airflow modeling, mixing and recirculation flows, lubrication and low Reynolds number flows, biomedical flows such as blood transport in vessels, microfluidic devices, urban wind flow modeling, industrial process flows, benchmark validation for CFD solvers, and research grade incompressible flow algorithm development.
+
+In aerospace and fluid dynamics research, incompressible solvers form the foundation for low-Mach-number flow modeling, algorithm verification, and numerical method development prior to extension to compressible and high-speed regimes.
+
+
+% ============================================================
+\section*{\color{sectionred}5. Compressible Flow and Shock Capturing: Euler and Navier Stokes}
+
+\secondaryheader{Summary}
+
+\modelequation{\frac{\partial \mathbf{U}}{\partial t}+\frac{\partial \mathbf{F}(\mathbf{U})}{\partial x}+\frac{\partial \mathbf{G}(\mathbf{U})}{\partial y}=0}
+
+This project targets compressible gas dynamics where shocks and discontinuities appear naturally. The goal is to demonstrate system level conservation laws, characteristic behavior, and robust numerical flux design. Compared to the wave project, this section is explicitly conservative, nonlinear, and designed to handle discontinuities without producing nonphysical oscillations.
+
+Unlike incompressible flow, compressible systems introduce strong nonlinear coupling between mass, momentum, and energy conservation, leading to shock waves, contact discontinuities, and expansion fans. This section treats compressible flow primarily as a numerical challenge, emphasizing conservative formulations, characteristic behavior, and stability under discontinuous solutions rather than smooth-flow accuracy alone.
+
+
+\secondaryheader{Key Numerical Methods and Concepts}
+\begin{itemize}
+\item Conservative finite volume formulation for Euler and compressible Navier Stokes
+\item Hyperbolic system eigenstructure and characteristic wave propagation
+\item Numerical entropy behavior and physically admissible weak solutions
+\item Riemann problem intuition, wave speeds, and characteristic based thinking
+\item Shock capturing fluxes such as Rusanov, HLL, HLLC, Roe style
+\item Higher order reconstruction with limiters such as MUSCL, TVD, WENO
+\item CFL constraints for compressible systems and stiffness at high Mach
+\item Verification problems such as Sod tube, Lax problem, Shu Osher, shock vortex interaction
+\item Diagnostics such as total variation, entropy considerations, conservation error checks
+\end{itemize}
+
+\secondaryheader{Real World Applications}
+Supersonic aerodynamics, nozzle and jet flows, shock boundary layer interaction, blast wave modeling, re entry heating coupled with compressible flow, and general high speed aerospace.
+
+Compressible flow solvers are central to aerospace engineering, governing the simulation of high-speed aerodynamic flows, propulsion systems, and shock-dominated environments.
+
+
+% ============================================================
+\section*{\textcolor{sectionred}{6. Parallelization and Optimization: High-Performance CFD Execution}}
+
+\secondaryheader{Summary}
+
+This project focuses on scaling CFD solvers beyond single-core execution and into high-performance computing environments. The objective is to demonstrate an understanding of parallel programming models, memory behavior, and performance bottlenecks in scientific computing, rather than simply achieving raw speedup.
+
+Parallelization is treated as a numerical and algorithmic problem, not only a software task.
+
+\secondaryheader{Key Numerical Methods and Concepts}
+\begin{itemize}
+\item Domain decomposition strategies for structured grids
+\item Strong scaling versus weak scaling behavior
+\item MPI-based parallelization of finite-difference and finite-volume solvers
+\item Halo exchange and communication patterns
+\item OpenMP shared-memory parallelism
+\item Hybrid MPI + OpenMP execution models
+\item Cache efficiency and memory access patterns
+\item Profiling and performance analysis
+\end{itemize}
+
+\secondaryheader{Implementation Scope}
+
+Parallelization is applied incrementally to existing solvers developed in earlier sections, including:
+\begin{itemize}
+\item Parabolic heat equation solvers
+\item Elliptic Poisson solvers
+\item Hyperbolic wave solvers
+\item Incompressible Navier Stokes solvers
+\item Compressible shock capturing schemes
+\end{itemize}
+
+Each solver is analyzed in serial and parallel to quantify:
+\begin{itemize}
+\item Speedup and efficiency
+\item Communication overhead
+\item Scalability limits
+\end{itemize}
+
+\secondaryheader{Real World Applications}
+Large-scale CFD simulations in aerospace and energy systems, weather and climate modeling, urban airflow analysis, industrial process simulation, and national supercomputing workloads where solver scalability and efficiency determine feasibility.
+
+% ============================================================
+\section*{\textcolor{sectionred}{7. OpenFOAM and ANSYS Fluent: Industrial CFD Workflows and Validation}}
+
+\secondaryheader{Summary}
+
+This section focuses on the structured use of established industrial CFD software, specifically OpenFOAM and ANSYS Fluent, to complement first-principles solver development. The objective is not tool proficiency alone, but a deep understanding of how industrial solvers implement numerical methods, turbulence modeling, and pressure velocity coupling, and how these choices relate to underlying mathematical formulations.
+
+Emphasis is placed on verification, validation, solver behavior, mesh sensitivity, and the interpretation of results within the limitations imposed by modeling assumptions. These studies bridge academic solver development with real-world engineering workflows.
+
+\secondaryheader{Aerospace-Oriented Validation and Case Selection}
+
+Industrial CFD solvers are widely used in aerospace applications not because they are universally accurate, but because they balance robustness, scalability, and engineering practicality. In this section, OpenFOAM and ANSYS Fluent are applied to canonical aerospace-relevant flow problems chosen specifically to expose solver behavior rather than to produce visually appealing results.
+
+Representative validation cases include:
+\begin{itemize}
+\item External aerodynamic flows over bluff and streamlined bodies
+\item Internal duct and channel flows representative of cooling passages
+\item Transitional and turbulent boundary layer development
+\item Pressure-driven incompressible flows relevant to low-speed aerodynamics
+\end{itemize}
+
+
+
+\secondaryheader{Key Numerical Methods and Concepts}
+\begin{itemize}
+\item Finite volume discretization on unstructured meshes
+\item Pressure velocity coupling algorithms:
+  \begin{itemize}
+  \item SIMPLE, SIMPLEC, PISO, and coupled solvers
+  \end{itemize}
+\item Turbulence modeling assumptions:
+  \begin{itemize}
+  \item RANS closures (e.g. $k$--$\varepsilon$, $k$--$\omega$, SST)
+  \item Near-wall treatment and wall functions
+  \end{itemize}
+\item Steady versus transient formulation trade-offs
+\item Linear solver choices and preconditioning strategies
+\item Mesh quality metrics and sensitivity analysis
+\item Boundary condition modeling and physical consistency
+\item Residual monitoring versus physical convergence
+\item Verification against analytical solutions and benchmarks
+\end{itemize}
+
+\secondaryheader{Comparative Insight with In-House Solvers}
+
+Results from OpenFOAM and ANSYS Fluent are systematically compared against in-house finite-difference and finite-volume solvers developed in earlier sections of this portfolio. This comparison highlights:
+
+\begin{itemize}
+\item The role of elliptic pressure Poisson solvers in industrial codes
+\item Differences between segregated and coupled solution strategies
+\item Numerical dissipation introduced by turbulence closures
+\item Sensitivity to timestep and relaxation parameters
+\item Trade-offs between robustness and physical fidelity
+\end{itemize}
+
+These comparisons reinforce a solver-agnostic understanding of CFD rather than reliance on any single software platform.
+
+\secondaryheader{Understanding Limitations of Industrial CFD Solvers}
+
+A key outcome of this section is recognizing where industrial CFD solvers introduce numerical or modeling compromises. While tools such as OpenFOAM and ANSYS Fluent provide robust frameworks, their accuracy is strongly influenced by turbulence closures, mesh quality, and user-selected numerical parameters.
+
+Key limitations examined include:
+\begin{itemize}
+\item Numerical dissipation introduced by upwind-biased fluxes
+\item Sensitivity of results to turbulence model selection
+\item Dependence on under-relaxation and solver tuning for convergence
+\item Mesh-induced anisotropy and near-wall resolution constraints
+\end{itemize}
+
+
+\secondaryheader{Real World Applications}
+
+External and internal aerodynamics, HVAC and ventilation systems, urban wind flow modeling, turbomachinery and nozzle flows, vehicle aerodynamics, industrial mixing processes, environmental flow analysis, and validation studies for engineering design workflows in aerospace, energy, and built-environment applications.
+
+For aerospace applications, these studies reinforce that industrial CFD tools must be used with a clear understanding of numerical methods and modeling assumptions. Solver outputs are interpreted as engineering models rather than exact solutions, and assessed through verification and sensitivity studies rather than visual inspection alone.
+
+
+
+% ============================================================
+\section*{\textcolor{sectionred}{8. AI-Enhanced CFD: Hybrid Physics-Based and Data-Driven Methods}}
+
+\secondaryheader{Summary}
+
+This section investigates the integration of machine learning techniques with classical computational fluid dynamics solvers to enhance modeling capability, reduce computational cost, and improve scalability. The emphasis is placed on hybrid approaches where data-driven models augment physics-based solvers rather than replace them.
+
+Machine learning is treated as a numerical tool that interacts with governing equations, discretization schemes, and solver structure. The objective is to demonstrate a principled understanding of where data-driven methods are beneficial, where they fail, and how they can be rigorously evaluated against traditional CFD techniques.
+
+\secondaryheader{Key Numerical Methods and Concepts}
+\begin{itemize}
+\item Supervised learning for regression of solution fields
+\item Neural networks as nonlinear function approximators
+\item Loss functions and optimization in the context of PDE solutions
+\item Physics-informed learning using PDE residual constraints
+\item Data-driven surrogate modeling for time-dependent PDEs
+\item Reduced-order modeling combined with machine learning
+\item Solver acceleration and parameter prediction using ML
+\item Stability, generalization, and error analysis for learned models
+\end{itemize}
+
+\secondaryheader{Implementation Scope}
+
+Machine learning models are applied alongside existing CFD solvers developed in earlier sections of the portfolio. The implementation includes:
+\begin{itemize}
+\item Training surrogate models for the 1D and 2D heat equations
+\item Comparison of ML surrogates against finite-difference solutions
+\item Physics informed neural networks for enforcing governing equations
+\item Reduced-order modeling using Proper Orthogonal Decomposition with learned temporal evolution
+\item Machine learning assistance for elliptic and Poisson solvers, including iteration count prediction and relaxation parameter selection
+\end{itemize}
+
+All machine learning models are validated using quantitative error norms, convergence behavior, and computational cost comparisons against baseline numerical solvers.
+
+\secondaryheader{Real World Applications}
+
+Accelerated CFD simulations for parameter studies and optimization, reduced-order models for real-time prediction and control, data-assisted solvers for large-scale engineering simulations, hybrid physics-data models in aerospace and energy systems, and research-oriented exploration of machine learning techniques for scientific computing and numerical PDEs.
+
+% ============================================================
+\section*{\textcolor{sectionred}{9. Website and PDF Curation: Reproducible Research Presentation}}
+
+\secondaryheader{Summary}
+
+This section focuses on transforming the technical work of the portfolio into a clear, reproducible, and professionally presented research artifact. The goal is not visual design, but scientific communication, traceability, and long-term maintainability.
+
+The portfolio is structured to allow reviewers to understand methodology, reproduce results, and inspect solver implementations without ambiguity.
+
+\secondaryheader{Key Concepts and Practices}
+\begin{itemize}
+\item Reproducible computational research principles
+\item Clear separation between theory, implementation, and results
+\item Consistent documentation of assumptions and limitations
+\item Version-controlled development workflow
+\end{itemize}
+
+\secondaryheader{Implementation Scope}
+\begin{itemize}
+\item Public Git repositories for each solver family
+\item Structured directory layout for code, data, and figures
+\item Automated figure generation where applicable
+\item PDF portfolio compiled from LaTeX sources
+\item Portfolio website hosted via GitHub Pages
+\end{itemize}
+
+Each project section includes:
+\begin{itemize}
+\item Governing equations and numerical methods
+\item Validation and verification results
+\item Performance and convergence studies
+\item Clear discussion of numerical behavior
+\end{itemize}
+
+\secondaryheader{Real World Applications}
+
+Academic research portfolios, PhD applications, technical interviews, research grant proposals, and long-term solver development projects where clarity, reproducibility, and documentation quality are as critical as numerical correctness.
+
+% ============================================================
+\section*{\textcolor{sectionred}{High Level Timeline Overview}}
+
+The timeline milestones below are approximate and may change depending on consistent effort and actual time investment during execution.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.28}
+\setlength{\tabcolsep}{8pt}
+
+\begin{tabular}{>{\centering\arraybackslash}p{4.0cm}
+                >{\raggedright\arraybackslash}p{5.8cm}
+                >{\raggedright\arraybackslash}p{4.8cm}
+                >{\centering\arraybackslash}p{1.6cm}}
+\toprule
+\midrule
+\textbf{Phase} & \textbf{Project} & \textbf{Method} & \textbf{Days} \\
+\midrule
+\midrule
+
+\phasecell{3}{\textcolor{green!60!black}{CORE}}
+ & Parabolic Solvers  & 1D 2D Finite Difference & 15 \\
+ & Elliptic Solvers   & Poisson Laplace         & 15 \\
+ & Hyperbolic Solvers & Upwind TVD              & 15 \\
+\midrule
+
+\phasecell{3}{\textcolor{blue!70!black}{INTERMEDIATE}}
+ & Navier Stokes Solver & 2D 3D Projection & 15 \\
+ & Compressible Flow    & Shock Capturing  & 30 \\
+ & Parallelization      & MPI OpenMP       & 30 \\
+\midrule
+
+\phasecell{3}{\textcolor{orange!85!black}{ADVANCED}}
+ & OpenFOAM and ANSYS Fluent & Industrial CFD Workflows & 15 \\
+ & AI Enhanced CFD           & PINNs ROM Surrogates      & 70 \\
+ & Website and PDF Curation  & GitHub Pages \LaTeX       & 10 \\
+\midrule
+\midrule
+
+\textbf{Total} &  &  & \textbf{215} \\
+\bottomrule
+\bottomrule
+\end{tabular}
+\end{center}
+
+\end{document}
+% \setcounter{page}{10}
